@@ -2,6 +2,7 @@ const {input} = require('./day5input.js');
 console.time('day5');
 
 const data = {};
+const mapNames = []
 
 const rows = input
   .split(/\r?\n\n/)
@@ -13,9 +14,9 @@ rows.forEach(row => {
     data[key] = values.split(/\s+/).filter(v => v).map(Number);
   } else {
     data[key] = values.split(/\r?\n/).filter(v => v).map(row => row.split(/\s+/).map(Number));
+    mapNames.push(key);
   }
 })
-
 
 const getNextId = (id, map) => {
   let nextId = id;
@@ -32,15 +33,12 @@ const getNextId = (id, map) => {
 let minLocationId = null;
 
 const calculateLocation = (seed) => {
-  const soilId = getNextId(seed, data['seed-to-soil map']);
-  const fertilizerId = getNextId(soilId, data['soil-to-fertilizer map']);
-  const waterId = getNextId(fertilizerId, data['fertilizer-to-water map']);
-  const lightId = getNextId(waterId, data['water-to-light map']);
-  const temperatureId = getNextId(lightId, data['light-to-temperature map']);
-  const humidityId = getNextId(temperatureId, data['temperature-to-humidity map']);
-  const locationId = getNextId(humidityId, data['humidity-to-location map']);
-  if (!minLocationId || locationId < minLocationId) {
-    minLocationId = locationId;
+  let id = seed;
+  for (const map of mapNames) {
+    id = getNextId(id, data[map]);
+  }
+  if (!minLocationId || id < minLocationId) {
+    minLocationId = id;
   }
 }
 
@@ -75,7 +73,7 @@ const processPartOne = (d) => {
   for (const seed of d.seeds) {
     calculateLocation(seed);
   }
-  console.log(minLocationId);
+  console.log('Part 1:', minLocationId);
 }
 
 const processPartTwo = (d) => {
@@ -110,6 +108,7 @@ const processPartTwo = (d) => {
     locationId++;
   }
 }
+
 processPartOne(data);
 processPartTwo(data);
 
